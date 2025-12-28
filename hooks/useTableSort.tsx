@@ -101,7 +101,7 @@ interface SortableHeaderProps<T> {
   label: string;
   sortConfig: SortConfig<T>;
   onSort: (key: keyof T) => void;
-  getSortIcon: (key: keyof T) => JSX.Element;
+  getSortIcon: (key: keyof T) => React.ReactElement;
   className?: string;
 }
 
