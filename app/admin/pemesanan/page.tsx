@@ -75,29 +75,6 @@ export default function AdminPemesananPage() {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [selectedBookingForManage, setSelectedBookingForManage] = useState<any>(null);
 
-  // Filter data based on active tab
-  const filteredBookings = bookingsData.filter(booking => {
-    if (activeTab !== 'semua' && booking.status !== activeTab) {
-      return false;
-    }
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        booking.customerName.toLowerCase().includes(query) ||
-        booking.company.toLowerCase().includes(query) ||
-        booking.bookingCode.toLowerCase().includes(query) ||
-        booking.packageName.toLowerCase().includes(query)
-      );
-    }
-    return true;
-  });
-
-  // Calculate stats
-  const totalBookings = bookingsData.length;
-  const confirmedCount = bookingsData.filter(b => b.status === 'dikonfirmasi').length;
-  const pendingCount = bookingsData.filter(b => b.status === 'pending').length;
-  const cancelledCount = bookingsData.filter(b => b.status === 'dibatalkan').length;
-
   // Filter tabs configuration
   const filterTabs: FilterTab[] = [
     {
@@ -212,6 +189,12 @@ export default function AdminPemesananPage() {
   };
 
   const filteredBookings = getFilteredBookings();
+
+  // Calculate stats
+  const totalBookings = bookingsData.length;
+  const confirmedCount = bookingsData.filter(b => b.status === 'dikonfirmasi').length;
+  const pendingCount = bookingsData.filter(b => b.status === 'pending').length;
+  const cancelledCount = bookingsData.filter(b => b.status === 'dibatalkan').length;
 
   return (
     <div className="flex min-h-screen bg-white">
