@@ -72,21 +72,6 @@ export default function VerifikasiPembayaranPage() {
     }
   ];
 
-  // Filter data berdasarkan filter yang dipilih
-  const filteredPayments = allPayments.filter(payment => {
-    if (currentFilter === 'all') return true;
-    if (currentFilter === 'paid') return payment.status === 'paid';
-    if (currentFilter === 'pending') return payment.status === 'pending';
-    return true;
-  });
-
-  // Hitung statistik
-  const stats = {
-    all: allPayments.length,
-    paid: allPayments.filter(p => p.status === 'paid').length,
-    pending: allPayments.filter(p => p.status === 'pending').length
-  };
-
   const handleVerifyPayment = () => {
     if (selectedPayments.length === 0) {
       toast.error('Pilih pembayaran yang ingin diverifikasi');
@@ -165,6 +150,13 @@ export default function VerifikasiPembayaranPage() {
   };
 
   const filteredPayments = getFilteredPayments();
+
+  // Hitung statistik
+  const stats = {
+    all: allPayments.length,
+    paid: allPayments.filter(p => p.status === 'paid').length,
+    pending: allPayments.filter(p => p.status === 'pending').length
+  };
 
   return (
     <div className="flex min-h-screen bg-white">
