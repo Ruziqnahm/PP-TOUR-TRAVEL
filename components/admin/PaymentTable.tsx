@@ -57,8 +57,9 @@ export default function PaymentTable({ data, onSelectionChange }: PaymentTablePr
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-md overflow-hidden">
-      {/* Table */}
+      {/* Table - Responsive wrapper */}
       <div className="overflow-x-auto">
+        <div className="min-w-[900px]">{/* Force minimum width for desktop experience */}
         <table className="w-full">
           <thead>
             <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -187,6 +188,7 @@ export default function PaymentTable({ data, onSelectionChange }: PaymentTablePr
             Next
           </button>
         </div>
+        </div>{/* Close min-w wrapper */}
       </div>
     </div>
   );

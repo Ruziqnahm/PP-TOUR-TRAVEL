@@ -8,6 +8,7 @@ import PaymentTable, { PaymentData } from '@/components/admin/PaymentTable';
 import VerifyPaymentModal from '@/components/admin/VerifyPaymentModal';
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal';
 import { EmptySearch, EmptyData } from '@/components/ui/EmptyState';
+import Pagination from '@/components/ui/Pagination';
 import toast from 'react-hot-toast';
 
 export default function VerifikasiPembayaranPage() {
@@ -17,6 +18,8 @@ export default function VerifikasiPembayaranPage() {
   const [selectedPaymentForVerify, setSelectedPaymentForVerify] = useState<any>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Data dummy untuk demo
   const allPayments: PaymentData[] = [
@@ -151,6 +154,17 @@ export default function VerifikasiPembayaranPage() {
 
   const filteredPayments = getFilteredPayments();
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPayments = filteredPayments.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter or search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [currentFilter, searchQuery]);
+
   // Hitung statistik
   const stats = {
     all: allPayments.length,
@@ -164,16 +178,16 @@ export default function VerifikasiPembayaranPage() {
       <AdminSidebar activePage="pembayaran" />
 
       {/* Main Content */}
-      <div className="flex-1 ml-64">
+      <div className="flex-1 md:ml-64">
         <div 
-          className="min-h-screen p-8 pt-8 overflow-y-auto"
+          className="min-h-screen p-4 sm:p-6 md:p-8 pt-4 sm:pt-6 md:pt-8 overflow-y-auto"
           style={{
             background: 'linear-gradient(141.98deg, #F9FAFB 0%, #F3F4F6 100%)'
           }}
         >
           <div className="max-w-[1256px] mx-auto space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
                   Verifikasi Pembayaran
@@ -280,30 +294,45 @@ export default function VerifikasiPembayaranPage() {
             </div>
 
             {/* Payment Table */}
-            {filteredPayments.length > 0 ? (
-              <PaymentTable 
-                data={filteredPayments}
-                onSelectionChange={setSelectedPayments}
-              />
-            ) : (
-              <div className="bg-white rounded-2xl p-12">
-                {searchQuery || currentFilter !== 'all' ? (
-                  <EmptySearch 
-                    message="Tidak ada pembayaran yang cocok dengan pencarian Anda"
-                    actionLabel="Reset Filter"
-                    onAction={() => {
-                      setSearchQuery('');
-                      setCurrentFilter('all');
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+              {filteredPayments.length > 0 ? (
+                <>
+                  <PaymentTable 
+                    data={paginatedPayments}
+                    onSelectionChange={setSelectedPayments}
+                  />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={filteredPayments.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={(newItemsPerPage) => {
+                      setItemsPerPage(newItemsPerPage);
+                      setCurrentPage(1);
                     }}
                   />
-                ) : (
-                  <EmptyData 
-                    message="Belum ada pembayaran"
-                    description="Data pembayaran dari pelanggan akan muncul di sini"
-                  />
-                )}
-              </div>
-            )}
+                </>
+              ) : (
+                <div className="p-12">
+                  {searchQuery || currentFilter !== 'all' ? (
+                    <EmptySearch 
+                      message="Tidak ada pembayaran yang cocok dengan pencarian Anda"
+                      actionLabel="Reset Filter"
+                      onAction={() => {
+                        setSearchQuery('');
+                        setCurrentFilter('all');
+                      }}
+                    />
+                  ) : (
+                    <EmptyData 
+                      message="Belum ada pembayaran"
+                      description="Data pembayaran dari pelanggan akan muncul di sini"
+                    />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -46,8 +46,9 @@ export default function BookingTable({ data, onSelectionChange }: BookingTablePr
 
   return (
     <div className="bg-white border border-[#f3f4f6] rounded-2xl shadow-lg overflow-hidden">
-      {/* Table Container */}
+      {/* Table Container - Responsive wrapper */}
       <div className="overflow-x-auto">
+        <div className="min-w-[800px]">{/* Force minimum width for desktop experience */}
         <table className="w-full">
           {/* Table Header */}
           <thead className="bg-gradient-to-r from-[#f9fafb] to-[#f3f4f6] border-b border-[#e5e7eb]">
@@ -180,6 +181,7 @@ export default function BookingTable({ data, onSelectionChange }: BookingTablePr
             Next
           </button>
         </div>
+        </div>{/* Close min-w wrapper */}
       </div>
     </div>
   );

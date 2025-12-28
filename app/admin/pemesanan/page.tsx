@@ -8,6 +8,7 @@ import BookingTable, { BookingData } from '@/components/admin/BookingTable';
 import ManageBookingModal from '@/components/admin/ManageBookingModal';
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal';
 import { EmptySearch, EmptyData } from '@/components/ui/EmptyState';
+import Pagination from '@/components/ui/Pagination';
 import toast from 'react-hot-toast';
 
 // Sample booking data
@@ -74,6 +75,9 @@ export default function AdminPemesananPage() {
   const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [selectedBookingForManage, setSelectedBookingForManage] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Filter tabs configuration
   const filterTabs: FilterTab[] = [
@@ -190,6 +194,17 @@ export default function AdminPemesananPage() {
 
   const filteredBookings = getFilteredBookings();
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter or search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
+
   // Calculate stats
   const totalBookings = bookingsData.length;
   const confirmedCount = bookingsData.filter(b => b.status === 'dikonfirmasi').length;
@@ -200,9 +215,9 @@ export default function AdminPemesananPage() {
     <div className="flex min-h-screen bg-white">
       <AdminSidebar />
       
-      <main className="flex-1 ml-64 bg-gradient-to-br from-[#f9fafb] to-[#f3f4f6] min-h-screen p-8 overflow-y-auto">
+      <main className="flex-1 md:ml-64 bg-gradient-to-br from-[#f9fafb] to-[#f3f4f6] min-h-screen p-4 sm:p-6 md:p-8 overflow-y-auto">
         {/* Header Section */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-[#101828] tracking-tight font-['Segoe_UI'] mb-1">
               Kelola Pemesanan Pelanggan
@@ -212,21 +227,21 @@ export default function AdminPemesananPage() {
             </p>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={handleDeleteSelected}
               disabled={selectedBookings.length === 0}
-              className="bg-[#e7000b] text-white px-5 py-2.5 rounded-2xl flex items-center gap-2 h-11 hover:bg-[#c10007] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#e7000b] text-white px-4 sm:px-5 py-2.5 rounded-2xl flex items-center gap-2 h-11 hover:bg-[#c10007] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none">
                 <path d="M2.5 5H17.5M8.33333 8.33333V13.3333M11.6667 8.33333V13.3333M3.33333 5L4.16667 15.8333C4.16667 16.2754 4.34226 16.6993 4.65482 17.0118C4.96738 17.3244 5.39131 17.5 5.83333 17.5H14.1667C14.6087 17.5 15.0326 17.3244 15.3452 17.0118C15.6577 16.6993 15.8333 16.2754 15.8333 15.8333L16.6667 5M7.5 5V3.33333C7.5 3.11232 7.5878 2.90036 7.74408 2.74408C7.90036 2.5878 8.11232 2.5 8.33333 2.5H11.6667C11.8877 2.5 12.0996 2.5878 12.2559 2.74408C12.4122 2.90036 12.5 3.11232 12.5 3.33333V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="font-['Segoe_UI']">Hapus</span>
+              <span className="font-['Segoe_UI'] hidden sm:inline">Hapus</span>
             </button>
             
             <button
               onClick={handleManageOrder}
-              className="bg-gradient-to-r from-[#009966] to-[#00bc7d] text-white px-5 py-2.5 rounded-2xl flex items-center gap-2 h-11 hover:opacity-90 transition-opacity"
+              className="bg-gradient-to-r from-[#009966] to-[#00bc7d] text-white px-4 sm:px-5 py-2.5 rounded-2xl flex items-center gap-2 h-11 hover:opacity-90 transition-opacity text-sm sm:text-base"
             >
               <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
                 <path d="M14.1667 2.5L17.5 5.83333L14.1667 9.16667M17.5 5.83333H10C8.61929 5.83333 7.29341 6.38125 6.32948 7.34518C5.36555 8.30911 4.81763 9.63499 4.81763 11.015V11.6667M5.83333 17.5L2.5 14.1667L5.83333 10.8333M2.5 14.1667H10C11.3807 14.1667 12.7066 13.6187 13.6705 12.6548C14.6345 11.6909 15.1824 10.365 15.1824 8.98433V8.33333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -333,30 +348,45 @@ export default function AdminPemesananPage() {
         </div>
 
         {/* Booking Table */}
-        {filteredBookings.length > 0 ? (
-          <BookingTable 
-            data={filteredBookings}
-            onSelectionChange={setSelectedBookings}
-          />
-        ) : (
-          <div className="bg-white rounded-2xl p-12">
-            {searchQuery || currentFilter !== 'all' ? (
-              <EmptySearch 
-                message="Tidak ada pemesanan yang cocok dengan pencarian Anda"
-                actionLabel="Reset Filter"
-                onAction={() => {
-                  setSearchQuery('');
-                  setCurrentFilter('all');
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          {filteredBookings.length > 0 ? (
+            <>
+              <BookingTable 
+                data={paginatedBookings}
+                onSelectionChange={setSelectedBookings}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredBookings.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={(newItemsPerPage) => {
+                  setItemsPerPage(newItemsPerPage);
+                  setCurrentPage(1);
                 }}
               />
-            ) : (
-              <EmptyData 
-                message="Belum ada pemesanan"
-                description="Pemesanan dari pelanggan akan muncul di sini"
-              />
-            )}
-          </div>
-        )}
+            </>
+          ) : (
+            <div className="p-12">
+              {searchQuery || currentFilter !== 'all' ? (
+                <EmptySearch 
+                  message="Tidak ada pemesanan yang cocok dengan pencarian Anda"
+                  actionLabel="Reset Filter"
+                  onAction={() => {
+                    setSearchQuery('');
+                    setCurrentFilter('all');
+                  }}
+                />
+              ) : (
+                <EmptyData 
+                  message="Belum ada pemesanan"
+                  description="Pemesanan dari pelanggan akan muncul di sini"
+                />
+              )}
+            </div>
+          )}
+        </div>
       </main>
 
       {/* Manage Booking Modal */}
