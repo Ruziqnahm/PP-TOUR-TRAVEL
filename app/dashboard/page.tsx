@@ -9,10 +9,10 @@ import BookingProcess from "@/components/sections/BookingProcess";
 import MomentsGallery from "@/components/sections/MomentsGallery";
 import Footer from "@/components/sections/Footer";
 
-export default function Home() {
+export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar isLoggedIn={false} />
+      <Navbar isLoggedIn={true} />
       <HeroSection />
       <TopDestinations />
       <AboutSection />
@@ -25,5 +25,3 @@ export default function Home() {
     </div>
   );
 }
-
-
