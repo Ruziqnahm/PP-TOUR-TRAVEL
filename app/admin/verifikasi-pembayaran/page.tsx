@@ -5,10 +5,13 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import PaymentStatsCard from '@/components/admin/PaymentStatsCard';
 import PaymentFilterTabs from '@/components/admin/PaymentFilterTabs';
 import PaymentTable, { PaymentData } from '@/components/admin/PaymentTable';
+import VerifyPaymentModal from '@/components/admin/VerifyPaymentModal';
 
 export default function VerifikasiPembayaranPage() {
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'paid' | 'pending'>('all');
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [selectedPaymentForVerify, setSelectedPaymentForVerify] = useState<any>(null);
 
   // Data dummy untuk demo
   const allPayments: PaymentData[] = [
@@ -84,8 +87,36 @@ export default function VerifikasiPembayaranPage() {
       alert('Pilih pembayaran yang ingin diverifikasi');
       return;
     }
-    alert(`Verifikasi ${selectedPayments.length} pembayaran`);
-    // Implementasi verifikasi pembayaran di sini
+    
+    // Ambil data pembayaran pertama yang dipilih
+    const paymentId = selectedPayments[0];
+    const payment = allPayments.find(p => p.id === paymentId);
+    
+    if (payment) {
+      // Mapping data untuk modal
+      setSelectedPaymentForVerify({
+        bookingCode: payment.bookingCode,
+        customerName: payment.customerName,
+        institution: payment.company,
+        packageName: payment.tourPackage,
+        pax: payment.pax,
+        totalAmount: payment.totalCost,
+        currentStatus: payment.status === 'pending' ? 'Menunggu Verifikasi' : 'Sudah Dibayar',
+        whatsappNumber: '081234567893' // Data dummy, seharusnya dari database
+      });
+      setIsVerifyModalOpen(true);
+    }
+  };
+
+  const handleConfirmVerify = (notes: string) => {
+    console.log('Verifikasi pembayaran dengan catatan:', notes);
+    console.log('Payment data:', selectedPaymentForVerify);
+    
+    // TODO: Implementasi API call untuk verifikasi pembayaran
+    alert(`Pembayaran ${selectedPaymentForVerify.bookingCode} berhasil diverifikasi!\nCatatan: ${notes || 'Tidak ada catatan'}`);
+    
+    setIsVerifyModalOpen(false);
+    setSelectedPayments([]);
   };
 
   const handleDeletePayment = () => {
@@ -226,6 +257,14 @@ export default function VerifikasiPembayaranPage() {
           </div>
         </div>
       </div>
+
+      {/* Verify Payment Modal */}
+      <VerifyPaymentModal
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        paymentData={selectedPaymentForVerify}
+        onVerify={handleConfirmVerify}
+      />
     </div>
   );
 }
