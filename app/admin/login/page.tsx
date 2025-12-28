@@ -7,6 +7,7 @@ import { AdminAuthCard } from '@/components/admin/AdminAuthCard';
 import { AdminFormInput } from '@/components/admin/AdminFormInput';
 import { AdminButton } from '@/components/admin/AdminButton';
 import { AdminLogo } from '@/components/admin/AdminLogo';
+import toast from 'react-hot-toast';
 
 const imgBackground = "https://www.figma.com/api/mcp/asset/c5bf5c22-8840-44d0-849a-3838369f662a";
 const imgLogo = "https://www.figma.com/api/mcp/asset/92cccf20-1d52-42eb-99a0-975196af0d38";
@@ -70,10 +71,10 @@ export default function AdminLoginPage() {
       // Redirect to admin dashboard after successful login
       // router.push('/admin/dashboard');
       
-      alert('Login admin berhasil! (Fitur masih dalam pengembangan)');
+      toast.success('Login admin berhasil! (Fitur masih dalam pengembangan)');
     } catch (error) {
       console.error('Login error:', error);
-      alert('Terjadi kesalahan saat login');
+      toast.error('Terjadi kesalahan saat login');
     } finally {
       setIsLoading(false);
     }

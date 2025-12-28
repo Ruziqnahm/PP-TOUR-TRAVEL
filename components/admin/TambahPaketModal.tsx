@@ -7,6 +7,7 @@ import { Dropdown } from './Dropdown';
 import { FileUploadInput } from './FileUploadInput';
 import { ImagePreview } from './ImagePreview';
 import { ModalHeader } from './ModalHeader';
+import toast from 'react-hot-toast';
 
 // Sample image URLs
 const sampleGallery1 = "https://www.figma.com/api/mcp/asset/f95c0f4d-fba5-4831-8aeb-9ddc70df079e";
@@ -115,7 +116,7 @@ export default function TambahPaketModal({ isOpen, onClose }: TambahPaketModalPr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    alert('Paket berhasil disimpan!');
+    toast.success('Paket berhasil disimpan!');
     onClose();
   };
 

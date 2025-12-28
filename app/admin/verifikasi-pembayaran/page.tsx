@@ -6,6 +6,7 @@ import PaymentStatsCard from '@/components/admin/PaymentStatsCard';
 import PaymentFilterTabs from '@/components/admin/PaymentFilterTabs';
 import PaymentTable, { PaymentData } from '@/components/admin/PaymentTable';
 import VerifyPaymentModal from '@/components/admin/VerifyPaymentModal';
+import toast from 'react-hot-toast';
 
 export default function VerifikasiPembayaranPage() {
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
@@ -84,7 +85,7 @@ export default function VerifikasiPembayaranPage() {
 
   const handleVerifyPayment = () => {
     if (selectedPayments.length === 0) {
-      alert('Pilih pembayaran yang ingin diverifikasi');
+      toast.error('Pilih pembayaran yang ingin diverifikasi');
       return;
     }
     
@@ -113,7 +114,10 @@ export default function VerifikasiPembayaranPage() {
     console.log('Payment data:', selectedPaymentForVerify);
     
     // TODO: Implementasi API call untuk verifikasi pembayaran
-    alert(`Pembayaran ${selectedPaymentForVerify.bookingCode} berhasil diverifikasi!\nCatatan: ${notes || 'Tidak ada catatan'}`);
+    toast.success(`Pembayaran ${selectedPaymentForVerify.bookingCode} berhasil diverifikasi!`);
+    if (notes) {
+      toast.info(`Catatan: ${notes}`);
+    }
     
     setIsVerifyModalOpen(false);
     setSelectedPayments([]);
@@ -121,11 +125,11 @@ export default function VerifikasiPembayaranPage() {
 
   const handleDeletePayment = () => {
     if (selectedPayments.length === 0) {
-      alert('Pilih pembayaran yang ingin dihapus');
+      toast.error('Pilih pembayaran yang ingin dihapus');
       return;
     }
     if (confirm(`Hapus ${selectedPayments.length} pembayaran?`)) {
-      alert('Pembayaran dihapus');
+      toast.success('Pembayaran berhasil dihapus');
       // Implementasi hapus pembayaran di sini
     }
   };

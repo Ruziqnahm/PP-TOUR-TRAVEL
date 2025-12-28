@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 
 interface BookingFormProps {
   packagePrice: string;
@@ -25,7 +26,7 @@ export default function BookingForm({
     e.preventDefault();
     // TODO: Handle form submission
     console.log("Form submitted:", formData);
-    alert("Pesanan Anda telah dikirim! Kami akan menghubungi Anda segera.");
+    toast.success("Pesanan Anda telah dikirim! Kami akan menghubungi Anda segera.");
   };
 
   return (

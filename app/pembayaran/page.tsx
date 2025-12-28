@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ModalHeader from '@/components/ui/ModalHeader';
 import { Button } from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 
 export default function PembayaranPage() {
   const router = useRouter();
@@ -35,16 +36,17 @@ export default function PembayaranPage() {
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File terlalu besar! Maksimal 5MB');
+        toast.error('File terlalu besar! Maksimal 5MB');
         return;
       }
       // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
-        alert('Format file tidak valid! Gunakan JPG, PNG, atau PDF');
+        toast.error('Format file tidak valid! Gunakan JPG, PNG, atau PDF');
         return;
       }
       setUploadedFile(file);
+      toast.success('File berhasil diunggah');
     }
   };
 
@@ -52,17 +54,18 @@ export default function PembayaranPage() {
     const account = bankAccounts.find(b => b.id === selectedBank);
     if (account) {
       navigator.clipboard.writeText(account.accountNumber);
-      alert('Nomor rekening disalin!');
+      toast.success('Nomor rekening berhasil disalin!');
     }
   };
 
   const handleSubmit = () => {
     if (!uploadedFile) {
-      alert('Upload bukti transfer wajib dilakukan sebelum submit pembayaran');
+      toast.error('Upload bukti transfer wajib dilakukan sebelum submit pembayaran');
       return;
     }
     // Handle payment submission
     console.log('Payment submitted:', { uploadedFile, selectedBank });
+    toast.success('Pembayaran berhasil disubmit!');
     router.push('/riwayat-pesanan');
   };
 

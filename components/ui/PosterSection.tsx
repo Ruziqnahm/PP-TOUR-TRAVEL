@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import toast from 'react-hot-toast';
 
 interface PosterSectionProps {
   posterImage: string;
@@ -13,7 +14,7 @@ export default function PosterSection({
 }: PosterSectionProps) {
   const handleDownload = () => {
     // TODO: Implement download functionality
-    alert("Download poster akan dimulai...");
+    toast.info("Download poster akan dimulai...");
   };
 
   return (

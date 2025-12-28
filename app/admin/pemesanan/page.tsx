@@ -6,6 +6,7 @@ import { SmallStatsCard } from '@/components/admin/SmallStatsCard';
 import FilterTabs, { FilterTab } from '@/components/admin/FilterTabs';
 import BookingTable, { BookingData } from '@/components/admin/BookingTable';
 import ManageBookingModal from '@/components/admin/ManageBookingModal';
+import toast from 'react-hot-toast';
 
 // Sample booking data
 const bookingsData: BookingData[] = [
@@ -148,7 +149,7 @@ export default function AdminPemesananPage() {
 
   const handleDeleteSelected = () => {
     if (selectedBookings.length === 0) {
-      alert('Pilih pesanan yang ingin dihapus');
+      toast.error('Pilih pesanan yang ingin dihapus');
       return;
     }
     
@@ -156,13 +157,14 @@ export default function AdminPemesananPage() {
     if (confirmed) {
       // TODO: Implement delete logic
       console.log('Deleting bookings:', selectedBookings);
+      toast.success(`${selectedBookings.length} pesanan berhasil dihapus`);
       setSelectedBookings([]);
     }
   };
 
   const handleManageOrder = () => {
     if (selectedBookings.length === 0) {
-      alert('Pilih pesanan yang ingin dikelola');
+      toast.error('Pilih pesanan yang ingin dikelola');
       return;
     }
     

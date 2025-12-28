@@ -5,6 +5,7 @@ import { useState } from 'react';
 import TambahPaketModal from '@/components/admin/TambahPaketModal';
 import EditPackageModal from '@/components/admin/EditPackageModal';
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal';
+import { EmptySearch, EmptyData } from '@/components/ui/EmptyState';
 
 export default function AdminPaketPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,6 +15,7 @@ export default function AdminPaketPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState<string | null>(null);
+  const [filteredPackages, setFilteredPackages] = useState<typeof packagesData>([]);
 
   // Sample stats data from Figma
   const statsData = [
@@ -134,6 +136,28 @@ export default function AdminPaketPage() {
     setIsModalOpen(true);
   };
 
+  // Filter logic
+  const getFilteredPackages = () => {
+    let filtered = packagesData;
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(pkg => 
+        pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pkg.location.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by type
+    if (filterType !== 'Semua Tipe') {
+      filtered = filtered.filter(pkg => pkg.type === filterType);
+    }
+
+    return filtered;
+  };
+
+  const displayedPackages = getFilteredPackages();
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#f9fafb] to-[#f3f4f6]">
       {/* Sidebar */}
@@ -241,109 +265,130 @@ export default function AdminPaketPage() {
         </div>
 
         {/* Package Cards Grid */}
-        <div className="grid grid-cols-3 gap-[24px]">
-          {packagesData.map((pkg) => (
-            <div
-              key={pkg.id}
-              className="bg-white border border-[#f3f4f6] rounded-[16px] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden"
-            >
-              {/* Package Image */}
-              <div className="relative h-[192px] overflow-hidden">
-                <img
-                  src={pkg.image}
-                  alt={pkg.title}
-                  className="w-full h-full object-cover"
-                />
-                {/* Type Badge */}
-                <div
-                  className={`absolute top-[10px] right-[14px] px-[13px] py-[7px] rounded-full border text-white text-[12px] leading-[16px] font-['Segoe_UI'] ${
-                    pkg.type === 'Premium'
-                      ? 'bg-[rgba(254,154,0,0.9)] border-[#ffb900]'
-                      : 'bg-[rgba(43,127,255,0.9)] border-[#51a2ff]'
-                  }`}
-                >
-                  {pkg.type}
+        {displayedPackages.length > 0 ? (
+          <div className="grid grid-cols-3 gap-[24px]">
+            {displayedPackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className="bg-white border border-[#f3f4f6] rounded-[16px] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden"
+              >
+                {/* Package Image */}
+                <div className="relative h-[192px] overflow-hidden">
+                  <img
+                    src={pkg.image}
+                    alt={pkg.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Type Badge */}
+                  <div
+                    className={`absolute top-[10px] right-[14px] px-[13px] py-[7px] rounded-full border text-white text-[12px] leading-[16px] font-['Segoe_UI'] ${
+                      pkg.type === 'Premium'
+                        ? 'bg-[rgba(254,154,0,0.9)] border-[#ffb900]'
+                        : 'bg-[rgba(43,127,255,0.9)] border-[#51a2ff]'
+                    }`}
+                  >
+                    {pkg.type}
+                  </div>
+                </div>
+
+                {/* Package Info */}
+                <div className="p-[20px]">
+                  <div className="mb-[16px]">
+                    <h3 className="text-[20px] leading-[28px] font-['Segoe_UI'] font-semibold text-[#101828] mb-[8px]">
+                      {pkg.title}
+                    </h3>
+                    <div className="flex items-center gap-[8px]">
+                      <img
+                        src="https://www.figma.com/api/mcp/asset/ff3a1cbe-cc61-40db-9188-c1ba01f8167a"
+                        alt="Location"
+                        className="w-[16px] h-[16px]"
+                      />
+                      <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#6a7282]">
+                        {pkg.location}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-[12px] mb-[16px]">
+                    <div className="flex items-center gap-[8px]">
+                      <img
+                        src="https://www.figma.com/api/mcp/asset/e4a09c1a-6781-4c65-b4bb-456b458fded4"
+                        alt="Duration"
+                        className="w-[16px] h-[16px]"
+                      />
+                      <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#4a5565]">
+                        {pkg.duration}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-[8px]">
+                      <img
+                        src="https://www.figma.com/api/mcp/asset/e9c8f0b8-4316-4f0f-adcb-e01223dad6f5"
+                        alt="Minimum Person"
+                        className="w-[16px] h-[16px]"
+                      />
+                      <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#4a5565]">
+                        {pkg.minPerson}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#f3f4f6] pt-[16px] flex items-center justify-between">
+                    <div>
+                      <p className="text-[16px] leading-[25.6px] font-['Segoe_UI'] text-[#6a7282]">
+                        Mulai dari
+                      </p>
+                      <p className="text-[16px] leading-[25.6px] font-['Segoe_UI'] text-[#009966]">
+                        {pkg.price}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-[8px]">
+                      {/* Edit Button */}
+                      <button
+                        onClick={() => handleEdit(pkg.id)}
+                        className="w-[36px] h-[36px] rounded-[16.4px] bg-[#ecfdf5] flex items-center justify-center hover:bg-[#d0fae5] transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.3333 2.00004C11.5083 1.82494 11.7163 1.68605 11.9451 1.59129C12.1738 1.49653 12.4187 1.44775 12.6666 1.44775C12.9146 1.44775 13.1595 1.49653 13.3882 1.59129C13.617 1.68605 13.825 1.82494 14 2.00004C14.1751 2.17513 14.314 2.38316 14.4088 2.61192C14.5035 2.84069 14.5523 3.08558 14.5523 3.33337C14.5523 3.58117 14.5035 3.82606 14.4088 4.05483C14.314 4.28359 14.1751 4.49162 14 4.66671L5.00001 13.6667L1.33334 14.6667L2.33334 11L11.3333 2.00004Z" stroke="#009966" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => handleDelete(pkg.id)}
+                        className="w-[36px] h-[36px] rounded-[16.4px] bg-[#fef2f2] flex items-center justify-center hover:bg-[#fee2e2] transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2 4H3.33333H14" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M6.66667 7.33337V12" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M9.33333 7.33337V12" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Package Info */}
-              <div className="p-[20px]">
-                <div className="mb-[16px]">
-                  <h3 className="text-[20px] leading-[28px] font-['Segoe_UI'] font-semibold text-[#101828] mb-[8px]">
-                    {pkg.title}
-                  </h3>
-                  <div className="flex items-center gap-[8px]">
-                    <img
-                      src="https://www.figma.com/api/mcp/asset/ff3a1cbe-cc61-40db-9188-c1ba01f8167a"
-                      alt="Location"
-                      className="w-[16px] h-[16px]"
-                    />
-                    <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#6a7282]">
-                      {pkg.location}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-[12px] mb-[16px]">
-                  <div className="flex items-center gap-[8px]">
-                    <img
-                      src="https://www.figma.com/api/mcp/asset/e4a09c1a-6781-4c65-b4bb-456b458fded4"
-                      alt="Duration"
-                      className="w-[16px] h-[16px]"
-                    />
-                    <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#4a5565]">
-                      {pkg.duration}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-[8px]">
-                    <img
-                      src="https://www.figma.com/api/mcp/asset/e9c8f0b8-4316-4f0f-adcb-e01223dad6f5"
-                      alt="Minimum Person"
-                      className="w-[16px] h-[16px]"
-                    />
-                    <span className="text-[14px] leading-[20px] font-['Segoe_UI'] text-[#4a5565]">
-                      {pkg.minPerson}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border-t border-[#f3f4f6] pt-[16px] flex items-center justify-between">
-                  <div>
-                    <p className="text-[16px] leading-[25.6px] font-['Segoe_UI'] text-[#6a7282]">
-                      Mulai dari
-                    </p>
-                    <p className="text-[16px] leading-[25.6px] font-['Segoe_UI'] text-[#009966]">
-                      {pkg.price}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-[8px]">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => handleEdit(pkg.id)}
-                      className="w-[36px] h-[36px] rounded-[16.4px] bg-[#ecfdf5] flex items-center justify-center hover:bg-[#d0fae5] transition-colors"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11.3333 2.00004C11.5083 1.82494 11.7163 1.68605 11.9451 1.59129C12.1738 1.49653 12.4187 1.44775 12.6666 1.44775C12.9146 1.44775 13.1595 1.49653 13.3882 1.59129C13.617 1.68605 13.825 1.82494 14 2.00004C14.1751 2.17513 14.314 2.38316 14.4088 2.61192C14.5035 2.84069 14.5523 3.08558 14.5523 3.33337C14.5523 3.58117 14.5035 3.82606 14.4088 4.05483C14.314 4.28359 14.1751 4.49162 14 4.66671L5.00001 13.6667L1.33334 14.6667L2.33334 11L11.3333 2.00004Z" stroke="#009966" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDelete(pkg.id)}
-                      className="w-[36px] h-[36px] rounded-[16.4px] bg-[#fef2f2] flex items-center justify-center hover:bg-[#fee2e2] transition-colors"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2 4H3.33333H14" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M6.66667 7.33337V12" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M9.33333 7.33337V12" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-16">
+            {searchQuery || filterType !== 'Semua Tipe' ? (
+              <EmptySearch 
+                message="Tidak ada paket yang cocok dengan pencarian Anda"
+                actionLabel="Reset Filter"
+                onAction={() => {
+                  setSearchQuery('');
+                  setFilterType('Semua Tipe');
+                }}
+              />
+            ) : (
+              <EmptyData 
+                message="Belum ada paket tour"
+                actionLabel="Tambah Paket"
+                onAction={handleAddPackage}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tambah Paket Modal */}

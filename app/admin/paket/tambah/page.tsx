@@ -9,6 +9,7 @@ import { Dropdown } from '@/components/admin/Dropdown';
 import { FileUploadInput } from '@/components/admin/FileUploadInput';
 import { ImagePreview } from '@/components/admin/ImagePreview';
 import { ModalHeader } from '@/components/admin/ModalHeader';
+import toast from 'react-hot-toast';
 
 // Sample image URLs
 const sampleGallery1 = "https://www.figma.com/api/mcp/asset/f95c0f4d-fba5-4831-8aeb-9ddc70df079e";
@@ -100,7 +101,7 @@ export default function TambahPaketPage() {
     e.preventDefault();
     console.log('Form submitted:', formData);
     // TODO: Implement API call to save package
-    alert('Paket berhasil disimpan!');
+    toast.success('Paket berhasil disimpan!');
     router.push('/admin/paket');
   };
 
