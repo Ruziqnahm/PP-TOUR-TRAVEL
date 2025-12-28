@@ -4,8 +4,8 @@ import { useRef } from 'react';
 
 interface FileUploadInputProps {
   label?: string;
-  fileName: string;
-  onFileChange: (file: File | null) => void;
+  fileName?: string;
+  onFileChange?: (file: File | null) => void;
   accept?: string;
   required?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -15,7 +15,7 @@ interface FileUploadInputProps {
 
 export function FileUploadInput({ 
   label,
-  fileName,
+  fileName = '',
   onFileChange,
   accept = "image/*",
   required = false,
