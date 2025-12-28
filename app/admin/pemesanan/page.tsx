@@ -6,6 +6,8 @@ import { SmallStatsCard } from '@/components/admin/SmallStatsCard';
 import FilterTabs, { FilterTab } from '@/components/admin/FilterTabs';
 import BookingTable, { BookingData } from '@/components/admin/BookingTable';
 import ManageBookingModal from '@/components/admin/ManageBookingModal';
+import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal';
+import { EmptySearch, EmptyData } from '@/components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
 // Sample booking data
@@ -152,14 +154,15 @@ export default function AdminPemesananPage() {
       toast.error('Pilih pesanan yang ingin dihapus');
       return;
     }
-    
-    const confirmed = confirm(`Hapus ${selectedBookings.length} pesanan yang dipilih?`);
-    if (confirmed) {
-      // TODO: Implement delete logic
-      console.log('Deleting bookings:', selectedBookings);
-      toast.success(`${selectedBookings.length} pesanan berhasil dihapus`);
-      setSelectedBookings([]);
-    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    // TODO: Implement delete logic
+    console.log('Deleting bookings:', selectedBookings);
+    toast.success(`${selectedBookings.length} pesanan berhasil dihapus`);
+    setSelectedBookings([]);
+    setIsDeleteModalOpen(false);
   };
 
   const handleManageOrder = () => {
@@ -186,6 +189,29 @@ export default function AdminPemesananPage() {
       setIsManageModalOpen(true);
     }
   };
+
+  // Filter and search logic
+  const getFilteredBookings = () => {
+    let filtered = bookingsData;
+
+    // Filter by status
+    if (currentFilter !== 'all') {
+      filtered = filtered.filter(booking => booking.status === currentFilter);
+    }
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(booking =>
+        booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        booking.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        booking.bookingCode.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredBookings = getFilteredBookings();
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -324,10 +350,30 @@ export default function AdminPemesananPage() {
         </div>
 
         {/* Booking Table */}
-        <BookingTable 
-          data={filteredBookings}
-          onSelectionChange={setSelectedBookings}
-        />
+        {filteredBookings.length > 0 ? (
+          <BookingTable 
+            data={filteredBookings}
+            onSelectionChange={setSelectedBookings}
+          />
+        ) : (
+          <div className="bg-white rounded-2xl p-12">
+            {searchQuery || currentFilter !== 'all' ? (
+              <EmptySearch 
+                message="Tidak ada pemesanan yang cocok dengan pencarian Anda"
+                actionLabel="Reset Filter"
+                onAction={() => {
+                  setSearchQuery('');
+                  setCurrentFilter('all');
+                }}
+              />
+            ) : (
+              <EmptyData 
+                message="Belum ada pemesanan"
+                description="Pemesanan dari pelanggan akan muncul di sini"
+              />
+            )}
+          </div>
+        )}
       </main>
 
       {/* Manage Booking Modal */}
@@ -346,6 +392,14 @@ export default function AdminPemesananPage() {
           }}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        message={`Apakah Anda yakin ingin menghapus ${selectedBookings.length} pemesanan yang dipilih?`}
+      />
     </div>
   );
 }

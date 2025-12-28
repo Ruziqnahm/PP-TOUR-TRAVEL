@@ -6,6 +6,8 @@ import PaymentStatsCard from '@/components/admin/PaymentStatsCard';
 import PaymentFilterTabs from '@/components/admin/PaymentFilterTabs';
 import PaymentTable, { PaymentData } from '@/components/admin/PaymentTable';
 import VerifyPaymentModal from '@/components/admin/VerifyPaymentModal';
+import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal';
+import { EmptySearch, EmptyData } from '@/components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
 export default function VerifikasiPembayaranPage() {
@@ -13,6 +15,8 @@ export default function VerifikasiPembayaranPage() {
   const [currentFilter, setCurrentFilter] = useState<'all' | 'paid' | 'pending'>('all');
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [selectedPaymentForVerify, setSelectedPaymentForVerify] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Data dummy untuk demo
   const allPayments: PaymentData[] = [
@@ -128,11 +132,39 @@ export default function VerifikasiPembayaranPage() {
       toast.error('Pilih pembayaran yang ingin dihapus');
       return;
     }
-    if (confirm(`Hapus ${selectedPayments.length} pembayaran?`)) {
-      toast.success('Pembayaran berhasil dihapus');
-      // Implementasi hapus pembayaran di sini
-    }
+    setIsDeleteModalOpen(true);
   };
+
+  const confirmDelete = () => {
+    // TODO: Implement delete logic
+    console.log('Deleting payments:', selectedPayments);
+    toast.success('Pembayaran berhasil dihapus');
+    setSelectedPayments([]);
+    setIsDeleteModalOpen(false);
+  };
+
+  // Filter and search logic
+  const getFilteredPayments = () => {
+    let filtered = allPayments;
+
+    // Filter by status
+    if (currentFilter !== 'all') {
+      filtered = filtered.filter(payment => payment.status === currentFilter);
+    }
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(payment =>
+        payment.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        payment.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        payment.bookingCode.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredPayments = getFilteredPayments();
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -232,6 +264,8 @@ export default function VerifikasiPembayaranPage() {
                   <input
                     type="text"
                     placeholder="Cari berdasarkan nama, perusahaan, atau kode booking..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-2xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                   <svg 
@@ -254,10 +288,30 @@ export default function VerifikasiPembayaranPage() {
             </div>
 
             {/* Payment Table */}
-            <PaymentTable 
-              data={filteredPayments}
-              onSelectionChange={setSelectedPayments}
-            />
+            {filteredPayments.length > 0 ? (
+              <PaymentTable 
+                data={filteredPayments}
+                onSelectionChange={setSelectedPayments}
+              />
+            ) : (
+              <div className="bg-white rounded-2xl p-12">
+                {searchQuery || currentFilter !== 'all' ? (
+                  <EmptySearch 
+                    message="Tidak ada pembayaran yang cocok dengan pencarian Anda"
+                    actionLabel="Reset Filter"
+                    onAction={() => {
+                      setSearchQuery('');
+                      setCurrentFilter('all');
+                    }}
+                  />
+                ) : (
+                  <EmptyData 
+                    message="Belum ada pembayaran"
+                    description="Data pembayaran dari pelanggan akan muncul di sini"
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -268,6 +322,14 @@ export default function VerifikasiPembayaranPage() {
         onClose={() => setIsVerifyModalOpen(false)}
         paymentData={selectedPaymentForVerify}
         onVerify={handleConfirmVerify}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        message={`Apakah Anda yakin ingin menghapus ${selectedPayments.length} pembayaran yang dipilih?`}
       />
     </div>
   );
